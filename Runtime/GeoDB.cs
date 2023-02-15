@@ -29,7 +29,8 @@ namespace UGeoDB
             yield return null;
             countryDb = File.ReadAllText(filePath);
 #endif
-            Debug.Log(countryDb);
+            var lines = GetLines(countryDb);
+            Debug.Log(lines[lines.Count - 1]);
         }
 
         IEnumerator ReadCitiesDb(string filePath)
@@ -42,7 +43,8 @@ namespace UGeoDB
             yield return null;
             citiesDb = File.ReadAllText(filePath);
 #endif
-            Debug.Log(citiesDb);
+            var lines = GetLines(citiesDb);
+            Debug.Log(lines.Count);
         }
 
         public static string GetStreammingAssetsPath(string fileName)
@@ -58,6 +60,43 @@ namespace UGeoDB
 #else
             return Application.streamingAssetsPath + "/" + fileName;
 #endif
+        }
+
+        public static List<string> GetLines(string original, bool ignoreEmptyLine = true)
+        {
+            List<string> lines = new List<string>();
+
+            int startIndex = 0;
+
+            bool isCommentLine = false;
+            int lastLineEndIndex = -1; // in case, first line is comment, (-1 + 1) == 0, so condition would work
+
+            for (int i = 0; i < original.Length; i++)
+            {
+                if(original[i] == '#' && i == lastLineEndIndex + 1) 
+                {
+                    isCommentLine = true;
+                }
+
+                if (original[i] == '\n')
+                {
+                    string line = "";
+                    
+                    if(!isCommentLine)
+                        line = original.Substring(startIndex, (i - startIndex + 1));
+                    
+                    if(!ignoreEmptyLine)
+                        lines.Add(line);
+                    else if (!string.IsNullOrEmpty(line.Trim()))
+                        lines.Add(line);
+
+                    startIndex = i + 1;
+                    lastLineEndIndex = i;
+                    isCommentLine = false;
+                }
+            }
+
+            return lines;
         }
     }
 }
