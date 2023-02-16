@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +8,7 @@ namespace UGeoDB
 {
     public class GeoDB : MonoBehaviour
     {
+        public CountryInfo[] editorCountries;
         private string countryDb;
         private string citiesDb;
 
@@ -14,7 +16,7 @@ namespace UGeoDB
         {
             string countryDbPath = GetStreammingAssetsPath("countryInfo.txt");
             string citiesDbPath = GetStreammingAssetsPath("cities500.txt");
-            
+
             StartCoroutine(ReadCountryDb(countryDbPath));
             StartCoroutine(ReadCitiesDb(citiesDbPath));
         }
@@ -30,6 +32,41 @@ namespace UGeoDB
             countryDb = File.ReadAllText(filePath);
 #endif
             var lines = GetLines(countryDb);
+            CountryInfo[] countries = new CountryInfo[lines.Count];
+
+            // #ISO	ISO3	ISO-Numeric	fips	Country	Capital	Area(in sq km)	
+            // Population	Continent	tld	CurrencyCode	CurrencyName	Phone	
+            // Postal Code Format	Postal Code Regex	Languages	geonameid	
+            // neighbours	EquivalentFipsCode
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string[] entries = lines[i].Split('\t');
+
+                CountryInfo country = new CountryInfo();
+                country.ISO = entries[0];
+                country.ISO3 = entries[1];
+                country.ISO_Numeric = Convert.ToInt32(entries[2]);
+                country.FIPS = entries[3];
+                country.CountryName = entries[4];
+                country.Capital = entries[5];
+                country.Area = Convert.ToInt32(entries[6]);
+                country.Population = Convert.ToInt32(entries[7]);
+                country.Continent = entries[8];
+                country.TopLevelDomain = entries[9];
+                country.CurrencyCode = entries[10];
+                country.CurrencyName = entries[11];
+                country.Phone = entries[12];
+                country.PostalCodeFormat = entries[13];
+                country.PostalCodeRegex = entries[14];
+                country.Languages = entries[15].Split(',');
+                country.geonameid = Convert.ToInt32(entries[16]);
+                country.neighbours = entries[17].Split(',');
+                country.EquivalentFIPS = entries[18];
+
+                countries[i] = country;
+            }
+            editorCountries = countries;
             Debug.Log(lines[lines.Count - 1]);
         }
 
@@ -73,7 +110,7 @@ namespace UGeoDB
 
             for (int i = 0; i < original.Length; i++)
             {
-                if(original[i] == '#' && i == lastLineEndIndex + 1) 
+                if (original[i] == '#' && i == lastLineEndIndex + 1)
                 {
                     isCommentLine = true;
                 }
@@ -81,11 +118,11 @@ namespace UGeoDB
                 if (original[i] == '\n')
                 {
                     string line = "";
-                    
-                    if(!isCommentLine)
+
+                    if (!isCommentLine)
                         line = original.Substring(startIndex, (i - startIndex + 1));
-                    
-                    if(!ignoreEmptyLine)
+
+                    if (!ignoreEmptyLine)
                         lines.Add(line);
                     else if (!string.IsNullOrEmpty(line.Trim()))
                         lines.Add(line);
