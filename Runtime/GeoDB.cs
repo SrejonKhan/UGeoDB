@@ -50,8 +50,8 @@ namespace UGeoDB
                 country.FIPS = entries[3];
                 country.CountryName = entries[4];
                 country.Capital = entries[5];
-                country.Area = Convert.ToInt32(entries[6]);
-                country.Population = Convert.ToInt32(entries[7]);
+                Int32.TryParse(entries[6], out country.Area);
+                Int32.TryParse(entries[7], out country.Population);
                 country.Continent = entries[8];
                 country.TopLevelDomain = entries[9];
                 country.CurrencyCode = entries[10];
@@ -60,7 +60,7 @@ namespace UGeoDB
                 country.PostalCodeFormat = entries[13];
                 country.PostalCodeRegex = entries[14];
                 country.Languages = entries[15].Split(',');
-                country.geonameid = Convert.ToInt32(entries[16]);
+                Int32.TryParse(entries[16], out country.geonameid);
                 country.neighbours = entries[17].Split(',');
                 country.EquivalentFIPS = entries[18];
 
