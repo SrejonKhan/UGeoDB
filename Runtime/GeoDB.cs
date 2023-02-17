@@ -9,6 +9,8 @@ namespace UGeoDB
     public class GeoDB : MonoBehaviour
     {
         public CountryInfo[] editorCountries;
+        public CityInfo[] editorCities;
+
         private string countryDb;
         private string citiesDb;
 
@@ -33,41 +35,13 @@ namespace UGeoDB
 #endif
             var lines = GetLines(countryDb);
             CountryInfo[] countries = new CountryInfo[lines.Count];
-
-            // #ISO	ISO3	ISO-Numeric	fips	Country	Capital	Area(in sq km)	
-            // Population	Continent	tld	CurrencyCode	CurrencyName	Phone	
-            // Postal Code Format	Postal Code Regex	Languages	geonameid	
-            // neighbours	EquivalentFipsCode
-
             for (int i = 0; i < lines.Count; i++)
             {
                 string[] entries = lines[i].Split('\t');
-
-                CountryInfo country = new CountryInfo();
-                country.ISO = entries[0];
-                country.ISO3 = entries[1];
-                country.ISO_Numeric = Convert.ToInt32(entries[2]);
-                country.FIPS = entries[3];
-                country.CountryName = entries[4];
-                country.Capital = entries[5];
-                Int32.TryParse(entries[6], out country.Area);
-                Int32.TryParse(entries[7], out country.Population);
-                country.Continent = entries[8];
-                country.TopLevelDomain = entries[9];
-                country.CurrencyCode = entries[10];
-                country.CurrencyName = entries[11];
-                country.Phone = entries[12];
-                country.PostalCodeFormat = entries[13];
-                country.PostalCodeRegex = entries[14];
-                country.Languages = entries[15].Split(',');
-                Int32.TryParse(entries[16], out country.geonameid);
-                country.neighbours = entries[17].Split(',');
-                country.EquivalentFIPS = entries[18];
-
-                countries[i] = country;
+                countries[i] = new CountryInfo(entries);
             }
             editorCountries = countries;
-            Debug.Log(lines[lines.Count - 1]);
+            Debug.Log("Country DB Loaded.");
         }
 
         IEnumerator ReadCitiesDb(string filePath)
@@ -81,7 +55,15 @@ namespace UGeoDB
             citiesDb = File.ReadAllText(filePath);
 #endif
             var lines = GetLines(citiesDb);
-            Debug.Log(lines.Count);
+            CityInfo[] cities = new CityInfo[lines.Count];
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string[] entries = lines[i].Split('\t');
+                cities[i] = new CityInfo(entries);
+            }
+            editorCities = new CityInfo[100];
+            Array.Copy(cities, 0, editorCities, 0, 100);
+            Debug.Log("City DB Loaded.");
         }
 
         public static string GetStreammingAssetsPath(string fileName)
