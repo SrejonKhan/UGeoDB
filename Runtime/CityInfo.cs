@@ -1,7 +1,7 @@
 using System;
 
 [System.Serializable]
-public class CityInfo 
+public class CityInfo
 {
     public int GeoNameID;
     public string Name;
@@ -60,13 +60,13 @@ public class CityInfo
         this.CountryCode = entries[8];
         this.AlternateCountryCode = entries[9].Split(',');
         this.Admin1Code = entries[10];
-        this.Admin2Code = entries[11]; 
+        this.Admin2Code = entries[11];
         this.Admin3Code = entries[12];
         this.Admin4Code = entries[13];
         ulong.TryParse(entries[14], out this.Population);
         int.TryParse(entries[15], out this.Elevation);
         this.DigitalElevationModel = entries[16];
         this.Timezone = entries[17];
-        DateTime.TryParseExact(entries[18], "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out this.ModificationDate);
+        DateTime.TryParseExact(entries[18], "yyyy-MM-dd\n", null, System.Globalization.DateTimeStyles.None, out this.ModificationDate);
     }
 }
