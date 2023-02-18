@@ -1,4 +1,5 @@
 using System;
+using UGeoDB.Utils;
 
 [System.Serializable]
 public class CityInfo
@@ -22,6 +23,8 @@ public class CityInfo
     public string DigitalElevationModel;
     public string Timezone;
     public DateTime ModificationDate;
+
+    public GeoCoordinate coordinate;
 
     public CityInfo(string[] entries)
     {
@@ -68,5 +71,7 @@ public class CityInfo
         this.DigitalElevationModel = entries[16];
         this.Timezone = entries[17];
         DateTime.TryParseExact(entries[18], "yyyy-MM-dd\n", null, System.Globalization.DateTimeStyles.None, out this.ModificationDate);
+
+        this.coordinate = new GeoCoordinate(this.Latitude, this.Longitude);
     }
 }
