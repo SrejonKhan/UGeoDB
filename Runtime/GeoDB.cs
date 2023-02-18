@@ -140,5 +140,21 @@ namespace UGeoDB
 
             return closestCity;
         }
+
+        public static CityInfo[] FindNearestCities(GeoCoordinate coord, int range, GeoMath.DistanceUnit distanceUnit = GeoMath.DistanceUnit.Kilometers)
+        {
+            List<CityInfo> closestCities = new List<CityInfo>();
+
+            foreach (CityInfo city in cities)
+            {
+                double distance = GeoMath.HaversineDistance(coord, city.coordinate, distanceUnit);
+                if (distance <= range)
+                {
+                    closestCities.Add(city);
+                }
+            }
+
+            return closestCities.ToArray();
+        }
     }
 }
