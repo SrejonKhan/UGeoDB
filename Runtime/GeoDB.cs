@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UGeoDB.Utils;
 using UnityEngine;
 
 namespace UGeoDB
 {
     public class GeoDB : MonoBehaviour
     {
+        private static CityInfo[] cities;
+        private static CountryInfo[] countries; 
+
+        // FOR TEST PURPOSE ONLY
         public CountryInfo[] editorCountries;
         public CityInfo[] editorCities;
 
@@ -34,7 +39,7 @@ namespace UGeoDB
             countryDb = File.ReadAllText(filePath);
 #endif
             var lines = GetLines(countryDb);
-            CountryInfo[] countries = new CountryInfo[lines.Count];
+            countries = new CountryInfo[lines.Count];
             for (int i = 0; i < lines.Count; i++)
             {
                 string[] entries = lines[i].Split('\t');
@@ -55,7 +60,7 @@ namespace UGeoDB
             citiesDb = File.ReadAllText(filePath);
 #endif
             var lines = GetLines(citiesDb);
-            CityInfo[] cities = new CityInfo[lines.Count];
+            cities = new CityInfo[lines.Count];
             for (int i = 0; i < lines.Count; i++)
             {
                 string[] entries = lines[i].Split('\t');
@@ -116,6 +121,24 @@ namespace UGeoDB
             }
 
             return lines;
+        }
+
+        public static CityInfo FindNearestCity(GeoCoordinate coord)
+        {
+            double closestDistance = double.MaxValue;
+            CityInfo closestCity = null;
+
+            foreach (CityInfo city in cities)
+            {
+                double distance = GeoMath.HaversineDistance(coord, city.coordinate);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestCity = city;
+                }
+            }
+
+            return closestCity;
         }
     }
 }
