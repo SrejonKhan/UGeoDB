@@ -22,7 +22,7 @@ namespace UGeoDB
         void Start()
         {
             string countryDbPath = GetStreammingAssetsPath("countryInfo.txt");
-            string citiesDbPath = GetStreammingAssetsPath("cities500.txt");
+            string citiesDbPath = GetStreammingAssetsPath("cities15000.txt");
 
             StartCoroutine(ReadCountryDb(countryDbPath));
             StartCoroutine(ReadCitiesDb(citiesDbPath));
@@ -155,6 +155,22 @@ namespace UGeoDB
             }
 
             return closestCities.ToArray();
+        }
+
+        public static CountryInfo GetCountry(CityInfo city)
+        {
+            CountryInfo country = null;
+
+            for (int i = 0; i < countries.Length; i++)
+            {
+                if(city.CountryCode == countries[i].ISO)
+                {
+                    country = countries[i];
+                    break;
+                }
+            }
+
+            return country;
         }
     }
 }
