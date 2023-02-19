@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UGeoDB.Utils;
 using UnityEngine;
@@ -9,22 +10,35 @@ using UnityEngine.Networking;
 
 namespace UGeoDB
 {
-    public class GeoDB : MonoBehaviour
+    public class GeoDB 
     {
-        private static CityInfo[] cities;
-        private static CountryInfo[] countries;
+        private static CityInfo[] cities = new CityInfo[0];
+        private static CountryInfo[] countries = new CountryInfo[0];
 
-        // FOR TEST PURPOSE ONLY
-        public CountryInfo[] editorCountries;
-        public CityInfo[] editorCities;
+        private bool isCityDbLoaded = false;
+        private bool isCountryDbLoaded = false;
+        private bool isLoaded = false;
+        public bool IsLoaded { get => isLoaded; private set => isLoaded = value; }
+        private Action onLoad;
+        public Action OnLoad { get => onLoad; set => onLoad = value; }
 
-        void Start()
+        public GeoDB()
         {
             string countryDbPath = GetStreammingAssetsPath("countryInfo.txt");
             string citiesDbPath = GetStreammingAssetsPath("cities15000.txt");
 
-            //StartCoroutine(ReadCountryDb(countryDbPath));
-            //StartCoroutine(ReadCitiesDb(citiesDbPath));
+            ThreadPool.SetMaxThreads(Environment.ProcessorCount, Environment.ProcessorCount);
+            ThreadPool.QueueUserWorkItem(cb => ReadCountryDb(countryDbPath), false);
+            ThreadPool.QueueUserWorkItem(cb => ReadCitiesDb(citiesDbPath), false);
+        }
+
+        private void UpdateOnLoadFlag()
+        {
+            if (isCityDbLoaded && isCountryDbLoaded)
+            {
+                IsLoaded = true;
+                OnLoad?.Invoke();
+            }
         }
 
         private async void ReadCountryDb(string path)
@@ -38,8 +52,9 @@ namespace UGeoDB
                 string[] entries = lines[i].Split('\t');
                 countries[i] = new CountryInfo(entries);
             }
-            editorCountries = countries;
-            Debug.Log("Country DB Loaded.");
+
+            isCountryDbLoaded = true;
+            UpdateOnLoadFlag();
         }
 
         private async void ReadCitiesDb(string path)
@@ -53,12 +68,12 @@ namespace UGeoDB
                 string[] entries = lines[i].Split('\t');
                 cities[i] = new CityInfo(entries);
             }
-            editorCities = new CityInfo[100];
-            Array.Copy(cities, 0, editorCities, 0, 100);
-            Debug.Log("City DB Loaded.");
+            
+            isCityDbLoaded = true;
+            UpdateOnLoadFlag();
         }
 
-        public static async Task<string> ReadTextResource(string path)
+        public async Task<string> ReadTextResource(string path)
         {
             string text = "";
             bool useUWR = false;
@@ -139,7 +154,7 @@ namespace UGeoDB
             return lines;
         }
 
-        public static CityInfo FindNearestCity(GeoCoordinate coord)
+        public CityInfo FindNearestCity(GeoCoordinate coord)
         {
             double closestDistance = double.MaxValue;
             CityInfo closestCity = null;
@@ -157,7 +172,7 @@ namespace UGeoDB
             return closestCity;
         }
 
-        public static CityInfo[] FindNearestCities(GeoCoordinate coord, int range, GeoMath.DistanceUnit distanceUnit = GeoMath.DistanceUnit.Kilometers)
+        public CityInfo[] FindNearestCities(GeoCoordinate coord, int range, GeoMath.DistanceUnit distanceUnit = GeoMath.DistanceUnit.Kilometers)
         {
             List<CityInfo> closestCities = new List<CityInfo>();
 
@@ -173,7 +188,7 @@ namespace UGeoDB
             return closestCities.ToArray();
         }
 
-        public static CountryInfo GetCountry(CityInfo city)
+        public CountryInfo GetCountry(CityInfo city)
         {
             CountryInfo country = null;
 
