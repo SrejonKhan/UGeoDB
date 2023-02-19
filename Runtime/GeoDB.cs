@@ -2,42 +2,35 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UGeoDB.Utils;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace UGeoDB
 {
     public class GeoDB : MonoBehaviour
     {
         private static CityInfo[] cities;
-        private static CountryInfo[] countries; 
+        private static CountryInfo[] countries;
 
         // FOR TEST PURPOSE ONLY
         public CountryInfo[] editorCountries;
         public CityInfo[] editorCities;
-
-        private string countryDb;
-        private string citiesDb;
 
         void Start()
         {
             string countryDbPath = GetStreammingAssetsPath("countryInfo.txt");
             string citiesDbPath = GetStreammingAssetsPath("cities15000.txt");
 
-            StartCoroutine(ReadCountryDb(countryDbPath));
-            StartCoroutine(ReadCitiesDb(citiesDbPath));
+            //StartCoroutine(ReadCountryDb(countryDbPath));
+            //StartCoroutine(ReadCitiesDb(citiesDbPath));
         }
 
-        IEnumerator ReadCountryDb(string filePath)
+        private async void ReadCountryDb(string path)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            UnityWebRequest www = UnityWebRequest.Get(filePath);
-            yield return www.SendWebRequest();
-            countryDb = www.downloadHandler.text;
-#else
-            yield return null;
-            countryDb = File.ReadAllText(filePath);
-#endif
+            string countryDb = await ReadTextResource(path);
+
             var lines = GetLines(countryDb);
             countries = new CountryInfo[lines.Count];
             for (int i = 0; i < lines.Count; i++)
@@ -49,16 +42,10 @@ namespace UGeoDB
             Debug.Log("Country DB Loaded.");
         }
 
-        IEnumerator ReadCitiesDb(string filePath)
+        private async void ReadCitiesDb(string path)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            UnityWebRequest www = UnityWebRequest.Get(filePath);
-            yield return www.SendWebRequest();
-            citiesDb = www.downloadHandler.text;
-#else
-            yield return null;
-            citiesDb = File.ReadAllText(filePath);
-#endif
+            string citiesDb = await ReadTextResource(path);
+
             var lines = GetLines(citiesDb);
             cities = new CityInfo[lines.Count];
             for (int i = 0; i < lines.Count; i++)
@@ -69,6 +56,35 @@ namespace UGeoDB
             editorCities = new CityInfo[100];
             Array.Copy(cities, 0, editorCities, 0, 100);
             Debug.Log("City DB Loaded.");
+        }
+
+        public static async Task<string> ReadTextResource(string path)
+        {
+            string text = "";
+            bool useUWR = false;
+
+            if (path.Contains("://") || path.Contains(":///"))
+                useUWR = true;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            useUWR = true;
+#endif
+            if (useUWR)
+            {
+                using var www = UnityWebRequest.Get(path);
+                var operation = www.SendWebRequest();
+
+                while (!operation.isDone)
+                    await Task.Yield();
+
+                text = www.downloadHandler.text;
+            }
+            else
+            {
+                text = File.ReadAllText(path);
+            }
+
+            return text;
         }
 
         public static string GetStreammingAssetsPath(string fileName)
@@ -163,7 +179,7 @@ namespace UGeoDB
 
             for (int i = 0; i < countries.Length; i++)
             {
-                if(city.CountryCode == countries[i].ISO)
+                if (city.CountryCode == countries[i].ISO)
                 {
                     country = countries[i];
                     break;
