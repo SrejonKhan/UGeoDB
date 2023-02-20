@@ -2,6 +2,23 @@
 
 Simple library to lookup city/country information based on Lat/Long.
 
+# Installation
+
+Open Package Manager in Unity and Click on Plus Icon -> Add package from git URL, paste following link
+
+```
+https://github.com/SrejonKhan/UGeoDB.git
+```
+
+and click Add. Or, download latest `.unitypackage` and import it manually.
+
+Then, open CopyStaticFiles window (`Window/UGeoDB/CopyStaticFiles`) -
+![ugeodb-copystaticfiles-nav.png](https://i.ibb.co/jRNZgYH/ugeodb-copystaticfiles-nav.png)
+
+Then, select files and copy that are going to be used -
+
+![ugeodb-cpystaticfiles-editor.png](https://i.ibb.co/P9vvzVN/ugeodb-cpystaticfiles-editor.png)
+
 # Usage
 
 ## Initialize
