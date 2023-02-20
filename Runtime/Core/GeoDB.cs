@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -10,7 +9,7 @@ using UnityEngine.Networking;
 
 namespace UGeoDB
 {
-    public class GeoDB 
+    public class GeoDB
     {
         private static CityInfo[] cities = new CityInfo[0];
         private static CountryInfo[] countries = new CountryInfo[0];
@@ -22,10 +21,15 @@ namespace UGeoDB
         private Action onLoad;
         public Action OnLoad { get => onLoad; set => onLoad = value; }
 
-        public GeoDB()
+        public GeoDB(IResourceOption option)
         {
-            string countryDbPath = GetStreammingAssetsPath("countryInfo.txt");
-            string citiesDbPath = GetStreammingAssetsPath("cities15000.txt");
+            string countryDbPath = option.CountryDb.IsRemote
+                ? option.CountryDb.Path
+                : GetStreammingAssetsPath(option.CountryDb.Path);
+
+            string citiesDbPath = option.CityDb.IsRemote
+                ? option.CityDb.Path
+                : GetStreammingAssetsPath(option.CityDb.Path);
 
             ThreadPool.SetMaxThreads(Environment.ProcessorCount, Environment.ProcessorCount);
             ThreadPool.QueueUserWorkItem(cb => ReadCountryDb(countryDbPath), false);
@@ -68,7 +72,7 @@ namespace UGeoDB
                 string[] entries = lines[i].Split('\t');
                 cities[i] = new CityInfo(entries);
             }
-            
+
             isCityDbLoaded = true;
             UpdateOnLoadFlag();
         }
