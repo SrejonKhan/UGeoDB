@@ -25,11 +25,11 @@ namespace UGeoDB
         {
             string countryDbPath = option.CountryDb.IsRemote
                 ? option.CountryDb.Path
-                : GetStreammingAssetsPath(option.CountryDb.Path);
+                : GetStreammingAssetsPath("StaticUGeoDB/" + option.CountryDb.Path);
 
             string citiesDbPath = option.CityDb.IsRemote
                 ? option.CityDb.Path
-                : GetStreammingAssetsPath(option.CityDb.Path);
+                : GetStreammingAssetsPath("StaticUGeoDB/" + option.CityDb.Path);
 
             ThreadPool.SetMaxThreads(Environment.ProcessorCount, Environment.ProcessorCount);
             ThreadPool.QueueUserWorkItem(cb => ReadCountryDb(countryDbPath), false);
