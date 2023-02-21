@@ -91,14 +91,14 @@ public class CopyStaticEditor : EditorWindow
                 continue;
 
             CopyFileToStreamingAssets(file.Key);
-            copiedFiles.Add(file.Key);  
+            copiedFiles.Add(file.Key);
         }
         AssetDatabase.Refresh();
     }
 
     private void CopyFileToStreamingAssets(string fileName)
     {
-        string sourceFilePath = Path.Combine(GetScriptDirectory(), "Static", fileName);
+        string sourceFilePath = Path.Combine(GetPackageDirectory(), "Static", fileName);
         string destinationFilePath = Path.Combine(Application.streamingAssetsPath, "StaticUGeoDB", fileName);
 
         if (!Directory.Exists(Path.GetDirectoryName(destinationFilePath)))
@@ -109,21 +109,18 @@ public class CopyStaticEditor : EditorWindow
         FileUtil.CopyFileOrDirectory(sourceFilePath, destinationFilePath);
     }
 
-    private string GetScriptDirectory()
+    private string GetPackageDirectory()
     {
         MonoScript script = MonoScript.FromScriptableObject(this);
         string assetPath = AssetDatabase.GetAssetPath(script);
-        string[] pathComponents = assetPath.Split('/');
-        int folderIndex = Array.IndexOf(pathComponents, "Assets") + 1;
-        string folderPath = string.Join("/", pathComponents, folderIndex, pathComponents.Length - folderIndex - 1);
-        string finalPath = Path.Combine(Application.dataPath, folderPath, "..");
-        finalPath = finalPath.Replace("Assets", "");
+        var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssetPath(assetPath);
+        string finalPath = packageInfo.resolvedPath;
         return finalPath;
     }
 
     private void GetStaticFiles()
     {
-        string staticFolderPath = Path.Combine(GetScriptDirectory(), "Static");
+        string staticFolderPath = Path.Combine(GetPackageDirectory(), "Static");
 
         if (!Directory.Exists(staticFolderPath))
         {
