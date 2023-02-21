@@ -1,3 +1,11 @@
+## [0.1.1] - 21-02-2023
+
+Patch fix, that fixed critical IOException issue.
+
+### Fixed
+
+- Fixed (#1), IOException when copying Static files from Package folder to Project's StreamingAssets folder.
+
 ## [0.1.0] - 21-02-2023
 
 This is the first release of the library, which includes the ability to find city and country information. Users can search for a city from a coordinate and get information such as the city's name, population, latitude and longitude, timezone and more. Users can also get country information from a city info.
