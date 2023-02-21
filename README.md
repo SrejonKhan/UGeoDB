@@ -27,6 +27,8 @@ Simple library to lookup city/country information based on Lat/Long.
 | cities15000.txt | Cities with a population > 15000 |
 | countryInfo.txt | All Countries                    |
 
+The following files are from [GeoNames](http://www.geonames.org/), under Creative Commons Attributions [License](http://download.geonames.org/export/#:~:text=cc%2Dby%20licence,usage%20is%20allowed).
+
 # Usage
 
 ## Initialize
