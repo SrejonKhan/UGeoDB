@@ -4,20 +4,28 @@ Simple library to lookup city/country information based on Lat/Long.
 
 # Installation
 
-Open Package Manager in Unity and Click on Plus Icon -> Add package from git URL, paste following link
+1. Open Package Manager in Unity and Click on Plus Icon -> Add package from git URL, paste following link
 
-```
-https://github.com/SrejonKhan/UGeoDB.git
-```
+   ```console
+   https://github.com/SrejonKhan/UGeoDB.git
+   ```
 
-and click Add. Or, download latest `.unitypackage` and import it manually.
+   and click Add. Or, download latest `.unitypackage` and import it manually.
 
-Then, open CopyStaticFiles window (`Window/UGeoDB/CopyStaticFiles`) -
-![ugeodb-copystaticfiles-nav.png](https://i.ibb.co/jRNZgYH/ugeodb-copystaticfiles-nav.png)
+2. Open CopyStaticFiles window (`Window/UGeoDB/CopyStaticFiles`).
+3. Select files and copy that are going to be used -
 
-Then, select files and copy that are going to be used -
+   ![ugeodb-cpystaticfiles-editor.png](https://i.ibb.co/P9vvzVN/ugeodb-cpystaticfiles-editor.png)
 
-![ugeodb-cpystaticfiles-editor.png](https://i.ibb.co/P9vvzVN/ugeodb-cpystaticfiles-editor.png)
+### Static File Details
+
+| Name            | Details                          |
+| --------------- | -------------------------------- |
+| cities500.txt   | Cities with a population > 500   |
+| cities1000.txt  | Cities with a population > 1000  |
+| cities5000.txt  | Cities with a population > 5000  |
+| cities15000.txt | Cities with a population > 15000 |
+| countryInfo.txt | All Countries                    |
 
 # Usage
 
@@ -51,6 +59,66 @@ Now, initialize with that -
 ```csharp
 var remoteOption = new RemoteOption();
 var geodb = new GeoDB(remoteOption);
+```
+
+## OnLoad
+
+Initialization takes time, as it read db files. So, if anything is called just after initialization, it may not work. It's better wait till it's loaded.
+
+```csharp
+geoDb.OnLoad += () =>
+{
+    // ...
+};
+```
+
+or, you can check if everything is loaded -
+
+```csharp
+if(geoDb.IsLoaded)
+{
+    // ...
+}
+```
+
+With Coroutine -
+
+```csharp
+yield return new WaitUntil(() => geoDb.IsLoaded);
+```
+
+## FindNearestCity
+
+Given a GeoCoordinate, nearest city to the coordinate can be found easily -
+
+```csharp
+var coord = new GeoCoordinate(23.4607, 91.1809);
+var city = geoDb.FindNearestCity(coord);
+Debug.Log(city.Name);
+```
+
+## FindNearestCities
+
+Given a GeoCoordinate, nearest cities in range (km/mi) to the coordinate can be found easily -
+
+```csharp
+var coord = new GeoCoordinate(23.4607, 91.1809);
+var cities = geoDb.FindNearestCities(coord, 50, GeoMath.DistanceUnit.Kilometers);
+foreach(var city in cities)
+{
+    Debug.Log(city.Name);
+}
+```
+
+## GetCountry
+
+To get the Country of a City (`CityInfo`) -
+
+```csharp
+var coord = new GeoCoordinate(23.4607, 91.1809);
+var city = geoDb.FindNearestCity(coord);
+var country = geoDb.GetCountry(city);
+Debug.Log(country.CountryName);
 ```
 
 ## Calculate distance between two Geo Coordinates (Haversine Formula)
