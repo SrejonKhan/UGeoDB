@@ -4,7 +4,7 @@ Patch fix, that fixed critical IOException issue.
 
 ### Fixed
 
-- Fixed (#1), IOException when copying Static files from Package folder to Project's StreamingAssets folder.
+- Fixed (#2), IOException when copying Static files from Package folder to Project's StreamingAssets folder.
 
 ## [0.1.0] - 21-02-2023
 
